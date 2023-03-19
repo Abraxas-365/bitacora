@@ -1,6 +1,7 @@
 package application
 
 import (
+	"fmt"
 	"github/Abraxas-365/bitacora/pkg/report/domain/models"
 	"log"
 
@@ -30,6 +31,7 @@ func (app *application) Delete(id interface{}) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(report)
 	report[0].Delete = true
 	if err := app.repo.Update(report[0]); err != nil {
 		return err

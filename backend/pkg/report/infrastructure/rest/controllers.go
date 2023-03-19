@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"github/Abraxas-365/bitacora/internal/auth"
 	"github/Abraxas-365/bitacora/internal/leakerrs"
 	"github/Abraxas-365/bitacora/pkg/report/application"
@@ -32,11 +33,12 @@ func ControllerFactory(fiberApp *fiber.App, app application.Application) {
 
 	r.Delete("/id=:id", func(c *fiber.Ctx) error {
 		id := c.Params("id")
+		fmt.Println("id", id)
 		if err := app.Delete(id); err != nil {
 			return c.Status(500).JSON(err)
 		}
 
-		return c.SendStatus(201)
+		return c.SendStatus(200)
 	})
 	r.Get("/", func(c *fiber.Ctx) error {
 		criteria := models.SearchCriteria{}

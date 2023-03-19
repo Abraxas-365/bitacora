@@ -56,7 +56,8 @@ func (r *repo) Update(report models.Report) error {
 	defer cancel()
 	collection := r.client.Database(r.database).Collection(r.collection)
 	filter := bson.M{"_id": report.Id}
-	_, err := collection.UpdateOne(ctx, filter, report)
+	update := bson.M{"$set": report}
+	_, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
