@@ -54,7 +54,7 @@ Example JSON:
 ** Search for a report
 GET http://localhost:1234/report
 Use Bearer token of login
-
+Dont send the key if you dont want to use it to search
 Example JSON:
 #+begin_src json
 {
@@ -73,7 +73,7 @@ Example JSON:
 ** Prerequisites
 - Go version 1.16 or higher
 - Set environment variables:
-    BITACORA: a token to authenticate with the server
+    BITACORA: a token to authenticate with the server (get the token using the login method)
     BITACORAURL: the URL of the server. If not set, the default value is http://localhost:1234.
 
 ** Installation
