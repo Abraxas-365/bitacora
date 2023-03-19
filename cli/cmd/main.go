@@ -56,6 +56,7 @@ func main() {
 	}
 
 	type Report struct {
+		Id          *string   `json:"id"`
 		Tags        *[]string `json:"tags"`
 		Title       *string   `json:"title"`
 		Description *string   `json:"description"`
@@ -166,13 +167,13 @@ func main() {
 			var respRepotrs []Report
 
 			if err := json.NewEncoder(&buf).Encode(reportQuery); err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 
 			fmt.Println()
 			req, err := http.NewRequest("GET", url+"/report", &buf)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 			req.Header.Add("Authorization", "Bearer "+token)
 			req.Header.Add("Content-Type", "application/json")
@@ -184,12 +185,12 @@ func main() {
 
 			}
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 			body, err := ioutil.ReadAll(resp.Body)
 
 			if err := json.Unmarshal(body, &respRepotrs); err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 			winSize := getWidth()
 			for _, report := range respRepotrs {
@@ -199,6 +200,9 @@ func main() {
 					fmt.Print("-")
 				}
 				fmt.Print("\n")
+				if *report.Id != "" {
+					fmt.Print(*report.Id)
+				}
 				fmt.Print("\n")
 				if *report.Title != "" {
 					fmt.Print(color.HiMagentaString("TITULO: "), *report.Title, "  ")
