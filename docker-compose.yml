@@ -1,0 +1,55 @@
+version: "3.0"
+services:
+  #Elasticsearch
+  elasticsearch:
+    container_name: es-container
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    networks:
+      - es-net
+    ports:
+      - 9200:9200
+
+  kibana:
+    container_name: kb-container
+    image: docker.elastic.co/kibana/kibana:8.0.0
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-container:9200
+    networks:
+      - es-net
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
+  #Database
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27030:27017
+    networks:
+      - es-net
+
+  #Backend
+  backend:
+    environment:
+      MQ_URI: amqp://admin:admin@rabbitmq:5672/
+      MONGODB_URI: mongodb://root:example@mongo:27017/
+    build: ./backend/.
+    restart: always
+    ports:
+      - 1234:1234
+    depends_on:
+      - elasticsearch
+    networks:
+      - es-net
+
+networks:
+  es-net:
+    driver: bridge

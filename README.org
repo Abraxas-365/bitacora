@@ -1,0 +1,114 @@
+#+title: Bitacora
+
+This project is a binnacle for software developers to write all their annotations including errors and info, and then be able to find them fast if they or their team have already encountered the same error, etc. The backend is working, but it needs better error handling, and the frontend is still in progress. The backend and CLI are written in Golang, and the frontend is built with NextJs. The database used is MongoDB, and the indexer is Elastic Search.
+
+* Installation
+To use this project, follow these steps:
+
+1) Clone the repository.
+
+2) Navigate to the root directory of the project.
+
+3) Start the backend using the Docker Compose file:
+
+#+begin_src bash
+docker-compose build
+docker-compose up -d
+#+end_src
+4) Once the backend is running, you can interact with it using the endpoints listed below. or using the CLI
+
+* Endpoints
+** Create a new user
+POST http://localhost:1234/user
+#+begin_src json
+{
+  "email": "luisfmir@gmail.com",
+  "nickname": "abraxas2",
+  "password": ""
+}
+#+end_src
+** Login
+#+begin_src json
+{
+  "username": "abraxas2",
+  "password": ""
+}
+#+end_src
+
+** Create a new report
+POST http://localhost:1234/report
+Use Bearer token of login
+
+Example JSON:
+#+begin_src json
+{
+  "title": "Example Title",
+  "tags": ["tag1", "tag2"],
+  "images": ["image1", "image2"],
+  "description": "Example Description",
+  "error": "Example Error",
+  "solution": "Example Solution"
+}
+#+end_src
+
+** Search for a report
+GET http://localhost:1234/report
+Use Bearer token of login
+
+Example JSON:
+#+begin_src json
+{
+  "title": "Example Title",
+  "tags": "tag1",
+  "description": "Example Description",
+  "error": "Example Error",
+  "status": true,
+  "nickname": "abraxas2",
+  "from": 0,
+  "size": 10
+}
+#+end_src
+
+* CLI
+** Prerequisites
+- Go version 1.16 or higher
+- Set environment variables:
+    BITACORA: a token to authenticate with the server
+    BITACORAURL: the URL of the server. If not set, the default value is http://localhost:1234.
+
+** Installation
+1) cd into the cli folder
+   #+begin_src bash
+go build cmd/main.go
+   #+end_src
+
+2) optionaly move to the bin file
+
+** Usage
+#+begin_src bash
+myapp [flags]
+#+end_src
+The available flags are:
+- --tags: A comma-separated list of tags to add to the report.
+- --title: The title of the report.
+- --description: A description of the problem.
+- --error: The error message.
+- --solution: A suggested solution to the problem.
+- --nickname: A nickname to use instead of the system username.
+- --from: The index of the first report to retrieve.
+- --size: The maximum number of reports to retrieve.
+
+*** example
+- To send a report:
+    #+begin_src bash
+myapp post --tags tag1,tag2 --title "Title" --description "Description" --error "Error message" --solution "Solution"
+#+end_src
+
+- To retrieve reports:
+#+begin_src bash
+myapp get --tags "tag1,tag2" --from 0 --size 10
+#+end_src
+
+* Troubleshooting
+If the server URL is incorrect or not set, the default value of http://localhost:1234 will be used.
+If the BITACORA environment variable is not set, authentication will fail.
