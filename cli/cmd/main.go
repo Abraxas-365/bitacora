@@ -227,7 +227,7 @@ func main() {
 				}
 				if *report.Nickname != "" {
 					fmt.Print("\n")
-					color.Green("Athor: " + *report.Nickname)
+					color.Green("Author: " + *report.Nickname)
 				}
 			}
 
