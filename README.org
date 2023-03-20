@@ -69,6 +69,10 @@ Example JSON:
 }
 #+end_src
 
+** Delete a report
+DELETE http://localhost:1234/report/id={id}
+Use Bearer token of login
+
 * CLI
 ** Prerequisites
 - Go version 1.16 or higher
