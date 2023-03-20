@@ -26,6 +26,6 @@ func Routes(appFiber *fiber.App, app application.Application) {
 			return c.Status(err.Code).JSON(err)
 		}
 
-		return c.Status(201).JSON(token)
+		return c.Status(200).JSON(token)
 	})
 }

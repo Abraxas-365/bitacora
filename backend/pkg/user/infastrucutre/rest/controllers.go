@@ -31,7 +31,7 @@ func ControllerFactory(fiberApp *fiber.App, app application.Application) {
 			return c.SendStatus(500)
 		}
 
-		return c.SendStatus(201)
+		return c.SendStatus(200)
 	})
 
 }
