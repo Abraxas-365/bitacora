@@ -8,7 +8,7 @@ import (
 type Application interface {
 	Create(new models.Report) error
 	Delete(id interface{}) error
-	Update(report models.Report) error
+	Update(ToUpdate models.Report, id string) error
 	Get(models.SearchCriteria) (models.Reports, error)
 }
 

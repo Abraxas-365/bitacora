@@ -14,7 +14,7 @@ func (app *application) Create(new models.Report) error {
 	}
 
 	if err := app.elastic.Index(new); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 
@@ -41,8 +41,44 @@ func (app *application) Delete(id interface{}) error {
 	return nil
 }
 
-func (app *application) Update(report models.Report) error {
-	return app.repo.Update(report)
+func (app *application) Update(ToUpdate models.Report, id string) error {
+
+	_ = app.elastic.Delete(id)
+
+	uuid, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+	reports, err := app.repo.Get("_id", uuid)
+	if err != nil {
+		return err
+	}
+	//Check which fields are updated
+	if ToUpdate.Title != "" {
+		reports[0].Title = ToUpdate.Title
+	}
+	if ToUpdate.Data != "" {
+		reports[0].Data = ToUpdate.Data
+	}
+	if ToUpdate.Tags != nil {
+		reports[0].Tags = ToUpdate.Tags
+	}
+	if ToUpdate.Error != "" {
+		reports[0].Error = ToUpdate.Error
+	}
+	if ToUpdate.Solution != "" {
+		reports[0].Solution = ToUpdate.Solution
+	}
+
+	if err := app.repo.Update(reports[0]); err != nil {
+		return err
+	}
+
+	if err := app.elastic.Index(reports[0]); err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 func (app *application) Get(criteria models.SearchCriteria) (models.Reports, error) {

@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github/Abraxas-365/bitacora/internal"
+	"github/Abraxas-365/bitacora/internal/myerror"
 	"github/Abraxas-365/bitacora/pkg/report/domain/models"
 	"github/Abraxas-365/bitacora/pkg/report/domain/ports"
 	"io"
+	"net/http"
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
@@ -39,12 +40,12 @@ func (e *elastic) Delete(id string) error {
 	}
 	resp, err := req.Do(ctx, e.client)
 	if err != nil {
-		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "DeleteRequest.Do")
+		return myerror.Wrap(err, http.StatusInternalServerError)
 	}
 	defer resp.Body.Close()
 
 	if resp.IsError() {
-		return internal.NewErrorf(internal.ErrorCodeUnknown, "DeleteRequest.Do %s", resp.StatusCode)
+		return myerror.New(fmt.Sprintf("DeleteRequest.Do %s", resp.Status()), resp.StatusCode)
 	}
 
 	io.Copy(io.Discard, resp.Body)
@@ -59,7 +60,7 @@ func (e *elastic) Index(report models.Report) error {
 	var buf bytes.Buffer
 
 	if err := json.NewEncoder(&buf).Encode(report); err != nil {
-		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewEncoder.Encode")
+		return myerror.Wrap(err, http.StatusInternalServerError)
 	}
 
 	req := esapi.IndexRequest{
@@ -71,12 +72,13 @@ func (e *elastic) Index(report models.Report) error {
 
 	resp, err := req.Do(ctx, e.client)
 	if err != nil {
-		return internal.WrapErrorf(err, internal.ErrorCodeUnknown, "IndexRequest.Do")
+		return myerror.Wrap(err, resp.StatusCode)
+
 	}
 	defer resp.Body.Close()
 
 	if resp.IsError() {
-		return internal.NewErrorf(internal.ErrorCodeUnknown, "IndexRequest.Do %s", resp.StatusCode)
+		return myerror.New(fmt.Sprintf("IndexRequest.Do %s", resp.Status()), resp.StatusCode)
 	}
 
 	io.Copy(io.Discard, resp.Body)
@@ -178,7 +180,7 @@ func (e *elastic) Search(args models.SearchCriteria) (models.Reports, error) {
 
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
 		fmt.Println(err)
-		return models.Reports{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewEncoder.Encode")
+		return models.Reports{}, myerror.Wrap(err, http.StatusInternalServerError)
 	}
 
 	req := esapi.SearchRequest{
@@ -189,13 +191,13 @@ func (e *elastic) Search(args models.SearchCriteria) (models.Reports, error) {
 	resp, err := req.Do(ctx, e.client)
 	if err != nil {
 		fmt.Println(err)
-		return models.Reports{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "SearchRequest.Do")
+		return models.Reports{}, myerror.Wrap(err, http.StatusInternalServerError)
 	}
 	defer resp.Body.Close()
 
 	if resp.IsError() {
 		fmt.Println(resp.String())
-		return models.Reports{}, internal.NewErrorf(internal.ErrorCodeUnknown, "SearchRequest.Do %d", resp.StatusCode)
+		return models.Reports{}, myerror.Wrap(err, resp.StatusCode)
 	}
 
 	var hits struct {
@@ -211,7 +213,7 @@ func (e *elastic) Search(args models.SearchCriteria) (models.Reports, error) {
 
 	if err := json.NewDecoder(resp.Body).Decode(&hits); err != nil {
 		fmt.Println(err)
-		return models.Reports{}, internal.WrapErrorf(err, internal.ErrorCodeUnknown, "json.NewDecoder.Decode")
+		return models.Reports{}, myerror.Wrap(err, http.StatusInternalServerError)
 	}
 
 	res := make(models.Reports, len(hits.Hits.Hits))

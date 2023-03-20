@@ -1,6 +1,6 @@
 #+title: Bitacora
 
-This project is a binnacle for software developers to write all their annotations including errors and info, and then be able to find them fast if they or their team have already encountered the same error, etc. The backend is working, but it needs better error handling, and the frontend is still in progress. The backend and CLI are written in Golang, and the frontend is built with NextJs. The database used is MongoDB, and the indexer is Elastic Search.
+This project is a binnacle for software developers to write all their annotations including errors and info, and then be able to find them fast if they or their team have already encountered the same error, etc. The backend and the CLI are working, and the frontend is still in progress. The backend and CLI are written in Golang, and the frontend is built with NextJs. The database used is MongoDB, and the indexer is Elastic Search.
 
 * Installation
 To use this project, follow these steps:
@@ -54,7 +54,7 @@ Example JSON:
 ** Search for a report
 GET http://localhost:1234/report
 Use Bearer token of login
-Dont send the key if you dont want to use it to search
+- Dont send the key if you dont want to use it to search
 Example JSON:
 #+begin_src json
 {
@@ -69,8 +69,24 @@ Example JSON:
 }
 #+end_src
 
+** Update a new report
+POST http://localhost:1234/report/{id}
+Use Bearer token of login
+- Dont send the key if you dont want to update it
+Example JSON:
+#+begin_src json
+{
+  "title": "Example Title",
+  "tags": ["tag1", "tag2"],
+  "images": ["image1", "image2"],
+  "description": "Example Description",
+  "error": "Example Error",
+  "solution": "Example Solution"
+}
+#+end_src
+
 ** Delete a report
-DELETE http://localhost:1234/report/id={id}
+DELETE http://localhost:1234/report/{id}
 Use Bearer token of login
 
 * CLI
@@ -103,14 +119,18 @@ The available flags are:
 - --size: The maximum number of reports to retrieve.
 
 *** example
-- To send a report:
+- To Create a report:
     #+begin_src bash
 myapp post --tags tag1,tag2 --title "Title" --description "Description" --error "Error message" --solution "Solution"
 #+end_src
 
-- To retrieve reports:
-#+begin_src bash
+- To Get reports:
+    #+begin_src bash
 myapp get --tags "tag1,tag2" --from 0 --size 10
+#+end_src
+- To Update a report
+    #+begin_src bash
+myapp post --id "id" --tags tag1,tag2 --title "Title" --description "Description" --error "Error message" --solution "Solution"
 #+end_src
 
 * Troubleshooting

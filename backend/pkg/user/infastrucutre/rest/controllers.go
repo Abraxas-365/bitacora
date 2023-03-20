@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"github/Abraxas-365/bitacora/internal/leakerrs"
+	"github/Abraxas-365/bitacora/internal/myerror"
 	"github/Abraxas-365/bitacora/pkg/user/application"
 	"github/Abraxas-365/bitacora/pkg/user/domain/models"
 
@@ -15,8 +15,7 @@ func ControllerFactory(fiberApp *fiber.App, app application.Application) {
 		user := models.User{}
 
 		if err := c.BodyParser(&user); err != nil {
-			err := leakerrs.GetError(err)
-			c.Status(err.Code).JSON(err)
+			return c.Status(500).JSON(myerror.Wrap(err, 500).ToJson())
 		}
 		if err := app.Create(user.Constructor()); err != nil {
 			return c.SendStatus(500)
@@ -28,7 +27,7 @@ func ControllerFactory(fiberApp *fiber.App, app application.Application) {
 	r.Delete("/id=:id", func(c *fiber.Ctx) error {
 		id := c.Params("id")
 		if err := app.Delete(id); err != nil {
-			return c.SendStatus(500)
+			return c.Status(500).JSON(myerror.Wrap(err, 500).ToJson())
 		}
 
 		return c.SendStatus(200)

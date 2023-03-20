@@ -2,7 +2,7 @@ package rest
 
 import (
 	"fmt"
-	"github/Abraxas-365/bitacora/internal/leakerrs"
+	"github/Abraxas-365/bitacora/internal/myerror"
 	"github/Abraxas-365/bitacora/pkg/auth/application"
 	"github/Abraxas-365/bitacora/pkg/auth/domain/models"
 
@@ -16,14 +16,13 @@ func Routes(appFiber *fiber.App, app application.Application) {
 		fmt.Println("LOGINNN")
 		login := models.Login{}
 		if err := c.BodyParser(&login); err != nil {
-			err := leakerrs.GetError(err)
-			c.Status(err.Code).JSON(err)
+			return c.Status(500).JSON(myerror.Wrap(err, 500).ToJson())
+
 		}
 
 		token, err := app.LoginUser(login)
 		if err != nil {
-			err := leakerrs.GetError(err)
-			return c.Status(err.Code).JSON(err)
+			return c.Status(500).JSON(myerror.Wrap(err, 500).ToJson())
 		}
 
 		return c.Status(200).JSON(token)
